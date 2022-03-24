@@ -1,0 +1,63 @@
+service: serverlessSetup
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-west-1
+  environment:
+    dynamodbRegion: 'localhost'
+    dynamodbEndpoint: 'http://localhost:8000'
+
+plugins:
+  # - serverless-plugin-typescript
+  - serverless-bundle
+  # - serverless-webpack
+  - serverless-dynamodb-local
+  - serverless-offline
+
+custom:
+#   bundle:
+#     ignorePackages:
+#       - pg-native
+#     sourcemaps: true  # Enable source maps
+#     caching: true     # Enable Webpack caching
+#     stats: false      # Don't print out any Webpack output
+#     linting: true 
+#     esbuild: true
+  dynamodb:
+  # If you only want to use DynamoDB Local in some stages, declare them here
+    stages:
+      - dev
+    start:
+      migrate: true
+
+functions:
+- ${file(resources/functions.yml)}
+
+resources:
+  Resources:
+    badgesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: BadgesTable
+        KeySchema:
+          - AttributeName: badgeId
+            KeyType: HASH
+          # - AttributeName: badgeName
+          #   KeyType: RANGE
+          # - AttributeName: badgeImage
+          #   KeyType: RANGE
+          # - AttributeName: badgeStatus
+          #   KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: badgeId
+            AttributeType: 'S'
+          # - AttributeName: badgeName
+          #   AttributeType: 'S'
+          # - AttributeName: badgeImage
+          #   AttributeType: 'S'
+          # - AttributeName: badgeStatus
+          #   AttributeType: 'S'
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
