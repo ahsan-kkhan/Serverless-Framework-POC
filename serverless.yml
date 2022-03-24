@@ -1,0 +1,135 @@
+service: serverlessSetup
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-west-1
+  environment:
+    dynamodbRegion: 'localhost'
+    dynamodbEndpoint: 'http://localhost:8000'
+
+plugins:
+  # - serverless-plugin-typescript
+  - serverless-bundle
+  # - serverless-webpack
+  - serverless-appsync-plugin
+  - serverless-dynamodb-local
+  - serverless-appsync-simulator
+  # - serverless-appsync-offline
+  - serverless-offline
+
+custom:
+  appsync-simulator:
+    apiKey: da2-fakeApiId123456
+    # functions:
+    # importValueMap:
+    #   other-service-api-url: 'https://other.api.url.com/graphql'
+      # createBadges:
+      #   url: http://localhost:62222/create
+      #   method: post
+      # addPost:
+      #   url: https://jsonplaceholder.typicode.com/posts
+      #   method: post
+  # appsync-offline:
+  #   port: 62222
+  #   dynamodb:
+  #     server:
+  #       port: 8000
+#   bundle:
+#     ignorePackages:
+#       - pg-native
+#     sourcemaps: true  # Enable source maps
+#     caching: true     # Enable Webpack caching
+#     stats: false      # Don't print out any Webpack output
+#     linting: true 
+#     esbuild: true
+  dynamodb:
+  # If you only want to use DynamoDB Local in some stages, declare them here
+    stages:
+      - dev
+    start:
+      migrate: true
+  # Badges_TABLE: badges-table
+
+  appSync:
+    name: appsync-badges-apis
+    authenticationType: API_KEY
+    schema: schema.graphql
+    mappingTemplates:      
+      - type: Mutation
+        field: createBadges
+        dataSource: createBadgesFunction
+        request: false
+        response: false
+      - type: Mutation
+        field: updateBadges
+        dataSource: updateBadgesFunction
+        request: false
+        response: false
+      - type: Mutation
+        field: deleteBadges
+        dataSource: deleteBadgesFunction
+        request: false
+        response: false
+      - type: Query
+        field: getBadges
+        dataSource: getBadgesFunction
+        request: false
+        response: false
+      - type: Query
+        field: getAllBadges
+        dataSource: getAllBadgesFunction
+        request: false
+        response: false      
+    dataSources:        
+      - type: AWS_LAMBDA
+        name: createBadgesFunction
+        config:
+          functionName: createBadges
+      - type: AWS_LAMBDA
+        name: updateBadgesFunction
+        config:
+          functionName: updateBadges
+      - type: AWS_LAMBDA
+        name: deleteBadgesFunction
+        config:
+          functionName: deleteBadges
+      - type: AWS_LAMBDA
+        name: getBadgesFunction
+        config:
+          functionName: findBadges
+      - type: AWS_LAMBDA
+        name: getAllBadgesFunction
+        config:
+          functionName: getAllBadges
+
+functions:
+- ${file(resources/functions.yml)}
+
+resources:
+  Resources:
+    badgesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: BadgesTable
+        KeySchema:
+          - AttributeName: badgeId
+            KeyType: HASH
+          # - AttributeName: badgeName
+          #   KeyType: RANGE
+          # - AttributeName: badgeImage
+          #   KeyType: RANGE
+          # - AttributeName: badgeStatus
+          #   KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: badgeId
+            AttributeType: 'S'
+          # - AttributeName: badgeName
+          #   AttributeType: 'S'
+          # - AttributeName: badgeImage
+          #   AttributeType: 'S'
+          # - AttributeName: badgeStatus
+          #   AttributeType: 'S'
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
