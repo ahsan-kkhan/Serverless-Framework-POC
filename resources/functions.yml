@@ -1,0 +1,35 @@
+createBadges:
+    handler: src/functions/badges/handler.createBadges
+    events:
+      - http:
+          path: badges/create
+          method: post
+          cors: true
+findBadges:
+    handler: src/functions/badges/handler.getBadges
+    events:
+      - http:
+          path: badges/find/{id}
+          method: get
+          cors: true
+updateBadges:
+    handler: src/functions/badges/handler.updateBadges
+    events:
+      - http:
+          path: badges/update
+          method: put
+          cors: true
+deleteBadges:
+    handler: src/functions/badges/handler.deleteBadges
+    events:
+      - http:
+          path: badges/delete
+          method: delete
+          cors: true
+getAllBadges:
+    handler: src/functions/badges/handler.getAllBadges
+    events:
+      - http:
+          path: badges/getAllBadges
+          method: get
+          cors: true
