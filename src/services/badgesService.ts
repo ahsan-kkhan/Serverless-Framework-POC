@@ -13,15 +13,15 @@ export default class badgesService{
             const badges = await this.docClient.scan({
                 TableName: this.Tablename,
             }).promise()
-            // console.log(badges.Items)
-            return badges;
+            console.log(badges.Items)
+            return (badges.Items) ;
         }
         catch(err){
             return err;
         }
     }
 
-    async createBadges(badges: Badges) {
+    async createBadges(badges: Badges){
         try{
             await this.docClient.put({
                 TableName: this.Tablename,
@@ -35,7 +35,7 @@ export default class badgesService{
 
     }
 
-    async getBadges(id: string): Promise<Badges> {
+    async getBadges(id: string){
     try {
         const badges = await this.docClient.get({
             TableName: this.Tablename,
@@ -46,14 +46,14 @@ export default class badgesService{
         if (!badges.Item) {
             throw new Error("Id does not exit");
         }
-        return badges.Item;
+        return badges.Item as Badges;
     }
     catch(err){
         return err;
     }
     }
 
-    async updateBadges(id: string, badges: Partial<Badges>){
+    async updateBadges(id: string, badges: Partial<Badges>): Promise<Badges> {
         try{
             const updated = await this.docClient
                 .update({
@@ -78,7 +78,7 @@ export default class badgesService{
         }
     }
 
-    async deleteBadges(id: string){
+    async deleteBadges(id: string): Promise<any> {
        try{
             return await this.docClient.delete({
                 TableName: this.Tablename,

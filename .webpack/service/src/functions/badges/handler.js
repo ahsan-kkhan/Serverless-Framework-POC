@@ -16430,7 +16430,8 @@ class badgesService {
                 const badges = yield this.docClient.scan({
                     TableName: this.Tablename,
                 }).promise();
-                return badges;
+                console.log(badges.Items);
+                return (badges.Items);
             }
             catch (err) {
                 return err;
