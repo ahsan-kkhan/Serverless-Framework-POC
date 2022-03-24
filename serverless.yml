@@ -1,0 +1,133 @@
+service: serverlessSetup
+# frameworkVersion: '2'
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-west-1
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-bundle
+  - serverless-dynamodb-local
+  - serverless-offline
+
+custom:
+  bundle:
+    ignorePackages:
+      - pg-native
+    sourcemaps: true  # Enable source maps
+    caching: true     # Enable Webpack caching
+    stats: false      # Don't print out any Webpack output
+    linting: true 
+    esbuild: true
+  dynamodb:
+  # If you only want to use DynamoDB Local in some stages, declare them here
+    stages:
+      - dev
+    # start:
+    #   port: 8000
+    #   inMemory: true
+    #   heapInitial: 200m
+    #   heapMax: 1g
+    #   migrate: true
+    #   seed: true
+    #   convertEmptyValues: true    # esbuild: true
+    start:
+      # port: 8000
+      # inMemory: 
+      # sharedDb: true
+      # dbPath: "dynamodb_local_data"
+      migrate: true
+  # dynamodb:
+  #   start:
+  #     port: 8000
+  #     sharedDb: true
+  #     # dbPath: "dynamodb_local_data"
+  #     migration: true
+  #   migration:
+  #     dir: offline/migrations
+functions:
+  hello:
+    handler: src/functions/hello.handler
+    events: # The events that trigger this function
+      - http: 
+          path: serverlessSetup/hello
+          method: get
+  goodbye:
+    handler: src/functions/goodbye.handler
+    events:
+      - http: 
+          path: serverlessSetup/goodbye
+          method: post
+  postBadges:
+    handler: src/functions/badges.posthandler
+    events:
+      - http:
+          path: v1/badges/create
+          method: post
+  getBadges:
+    handler: src/functions/badges.gethandler
+    events:
+      - http:
+          path: v1/badges/list
+          method: get
+  putBadges:
+    handler: src/functions/badges.puthandler
+    events:
+      - http:
+          path: v1/badges/change
+          method: put
+  deleteBadges:
+    handler: src/functions/badges.deletehandler
+    events:
+      - http:
+          path: v1/badges/remove
+          method: delete
+  findBadges:
+    handler: src/functions/badges.findhandler
+    events:
+      - http:
+          path: v1/badges/find/{id}
+          method: get
+  login:
+    handler: src/functions/badges.loginhandler
+    events:
+      - http:
+          path: v1/login
+          method: get
+  # question:
+  #   handler: src/functions/question.handler
+  #   # dependsOn: SNSHelloEvent
+  #   events:
+  #     - sns:
+  #         arn: !Ref SNSHelloEvent
+  #         topicName: hello-event
+
+# Serverless plugins
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Badges
+        KeySchema:
+          - AttributeName: badgeid
+            KeyType: HASH
+          # - AttributeName: badgeName
+          #   KeyType: RANGE
+          # - AttributeName: badgeImage
+          #   KeyType: RANGE
+          # - AttributeName: badgeStatus
+          #   KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: badgeid
+            AttributeType: 'N'
+          # - AttributeName: badgeName
+          #   AttributeType: 'S'
+          # - AttributeName: badgeImage
+          #   AttributeType: 'S'
+          # - AttributeName: badgeStatus
+          #   AttributeType: 'S'
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1

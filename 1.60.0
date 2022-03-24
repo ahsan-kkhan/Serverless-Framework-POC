@@ -1,0 +1,15 @@
+
+> serverless@3.3.0 postinstall D:\backend training\myservice-typescript\node_modules\serverless
+> node ./scripts/postinstall.js
+
+Serverless Framework successfully installed!
+
+To start your first project run “serverless”.
++ serverless@3.3.0
+added 2 packages from 8 contributors, updated 3 packages and audited 1561 packages in 44.065s
+
+118 packages are looking for funding
+  run `npm fund` for details
+
+found 9 vulnerabilities (4 moderate, 5 high)
+  run `npm audit fix` to fix them, or `npm audit` for details
